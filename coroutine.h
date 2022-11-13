@@ -42,7 +42,7 @@ struct context {
 #define CR_FIFO 0x0002
 
 //--------------my code-------------------
-#define CR_FILO 0x0004          //stack
+#define CR_FILO 0x0004          
 //--------------my code-------------------
 
 #define CR_SCHED_MASK (CR_DEFAULT | CR_FIFO | CR_FILO)

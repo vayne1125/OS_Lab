@@ -1,5 +1,6 @@
 #include <errno.h>
 #include <stdlib.h>
+#include <stdio.h>
 #include "coroutine_int.h"
 
 void myrq_init(struct my_rq *rq)
@@ -11,18 +12,17 @@ void myrq_init(struct my_rq *rq)
 
 static inline unsigned int __ringbuffer_unused(struct my_rq *rq)
 {
-    return rq->mask + 1 - (rq->top);
+    return (rq->top == rq->mask);
 }
 
 // enqueue at top
 int myrq_enqueue(struct my_rq *rq, struct task_struct *task)
 {
-    if (!__ringbuffer_unused(rq))
+    if (__ringbuffer_unused(rq))
         return -EAGAIN;
 
-    rq->r[rq->top & rq->mask] = task;
+    rq->r[rq->top] = task;
     rq->top++;
-
     return 0;
 }
 
@@ -34,7 +34,7 @@ struct task_struct *myrq_dequeue(struct my_rq *rq)
     if (rq->top == 0)
         return NULL;
 
-    rev = rq->r[rq->top & rq->mask];
+    rev = rq->r[rq->top];
     rq->top--;
 
     return rev;

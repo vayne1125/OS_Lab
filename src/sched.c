@@ -4,7 +4,7 @@
 #include <errno.h>
 #include <time.h>
 #include <sched.h>
-
+#include <stdio.h>
 #include "rbtree.h"
 #include "context.h"
 #include "coroutine.h"
@@ -52,9 +52,11 @@ static inline int filo_schedule(struct cr *cr, job_t func, void *args)
     struct task_struct *new_task;
 
     new_task = calloc(1, sizeof(struct task_struct));
-    if (!new_task)
+    if (!new_task){
+        
         return -ENOMEM;
-    if (myrq_enqueue(&cr->rq, new_task) < 0) {
+    }
+    if (myrq_enqueue(&cr->myrq, new_task) < 0) {
         free(new_task);
         return -ENOMEM;
     }
