@@ -50,8 +50,20 @@ void rq_init(struct rq *rq);
 int rq_enqueue(struct rq *rq, struct task_struct *task);
 struct task_struct *rq_dequeue(struct rq *rq);
 
-/* main data structure */
 
+//------------my code----------------
+struct my_rq {
+    unsigned int top; /*最上層的位子*/
+    unsigned int mask; /* the size is power of two, so mask will be size - 1 */
+    struct task_struct *r[RINGBUFFER_SIZE];
+};
+void myrq_init(struct my_rq *rq);
+int myrq_enqueue(struct my_rq *rq, struct task_struct *task);
+struct task_struct *myrq_dequeue(struct my_rq *rq);
+//------------my code----------------
+
+
+/* main data structure */
 #define MAX_CR_TABLE_SIZE 10
 
 struct cr {
@@ -62,7 +74,11 @@ struct cr {
 
     /* scheduler - chose by the flags */
     struct rq rq; /* FIFO */
-    struct rb_root root; /* Default */
+    struct rb_root root; /* Default */ 
+
+    //------------my code----------------
+    struct my_rq myrq;      //FILO    
+    //------------my code----------------
 
     /* sched operations */
     int (*schedule)(struct cr *cr, job_t func, void *args);

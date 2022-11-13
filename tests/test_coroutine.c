@@ -29,8 +29,9 @@ COROUTINE_DEFINE(job)
 int main(void)
 {
     int crfd, tfd[10];
-
-    crfd = coroutine_create(CR_DEFAULT);
+    //todo 改自己的
+    crfd = coroutine_create(CR_FILO);
+    //crfd = coroutine_create(CR_DEFAULT);
     if (crfd < 0)
         return crfd;
 

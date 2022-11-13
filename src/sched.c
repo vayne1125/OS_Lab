@@ -45,6 +45,43 @@ static inline int fifo_put_prev_task(struct cr *cr, struct task_struct *prev)
     return rq_enqueue(&cr->rq, prev);
 }
 
+//----------------my code--------------
+/* FILO scheduler */
+static inline int filo_schedule(struct cr *cr, job_t func, void *args)
+{
+    struct task_struct *new_task;
+
+    new_task = calloc(1, sizeof(struct task_struct));
+    if (!new_task)
+        return -ENOMEM;
+    if (myrq_enqueue(&cr->rq, new_task) < 0) {
+        free(new_task);
+        return -ENOMEM;
+    }
+
+    new_task->cr = cr;
+    new_task->tfd = cr->size++;
+    new_task->job = func;
+    new_task->args = args;
+    new_task->context.label = NULL;
+    new_task->context.wait_yield = 1;
+    new_task->context.blocked = 1;
+
+    return new_task->tfd;
+}
+
+static inline struct task_struct *filo_pick_next_task(struct cr *cr)
+{
+    return myrq_dequeue(&cr->myrq);
+}
+
+static inline int filo_put_prev_task(struct cr *cr, struct task_struct *prev)
+{
+    return myrq_enqueue(&cr->myrq, prev);
+}
+//----------------my code--------------
+
+
 /* Default scheduler */
 
 static RBTREE_CMP_INSERT_DEFINE(rb_cmp_insert, _n1, _n2)
@@ -138,5 +175,12 @@ void sched_init(struct cr *cr)
         cr->schedule = fifo_schedule;
         cr->pick_next_task = fifo_pick_next_task;
         cr->put_prev_task = fifo_put_prev_task;
+        return;
+    case CR_FILO:
+        myrq_init(&cr->myrq);
+        cr->schedule = filo_schedule;
+        cr->pick_next_task = filo_pick_next_task;
+        cr->put_prev_task = filo_put_prev_task;
+        return;
     }
 }
