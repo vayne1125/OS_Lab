@@ -23,6 +23,7 @@ int myrq_enqueue(struct my_rq *rq, struct task_struct *task)
 
     rq->r[rq->top] = task;
     rq->top++;
+
     return 0;
 }
 
@@ -33,9 +34,7 @@ struct task_struct *myrq_dequeue(struct my_rq *rq)
 
     if (rq->top == 0)
         return NULL;
-
-    rev = rq->r[rq->top];
     rq->top--;
-
+    rev = rq->r[rq->top];
     return rev;
 }
